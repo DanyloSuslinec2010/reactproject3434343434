@@ -1,7 +1,5 @@
 import styled from 'styled-components';
 
-// Шкала от минимума до максимума за день.
-// Блок с текущей температурой стоит на шкале по значению (left в процентах).
 export default function TempScale({ min, max, value }) {
   const range = max - min;
   const percent = range === 0 ? 50 : ((value - min) / range) * 100;

@@ -1,5 +1,3 @@
-// Цвета и брейкпоинты в одном месте.
-// mobile: 320-767, tablet: от 768, desktop: от 1200
 export const theme = {
   colors: {
     primary: '#2f80ed',

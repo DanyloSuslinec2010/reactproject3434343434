@@ -1,4 +1,3 @@
-// Запасные новости, если API не ответил
 export const fallbackNews = [
   {
     id: 'f1',

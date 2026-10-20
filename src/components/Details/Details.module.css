@@ -32,7 +32,6 @@
   border-radius: 8px;
 }
 
-/* Шкала температури */
 .scale {
   margin-bottom: 24px;
 }
@@ -65,7 +64,6 @@
   color: var(--muted);
 }
 
-/* Додаткові дані */
 .facts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -110,7 +108,6 @@
   opacity: 0.6;
 }
 
-/* Тиждень */
 .week {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

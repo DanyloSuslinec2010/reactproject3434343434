@@ -18,7 +18,6 @@ const readCities = () => {
 
 export function useCities() {
   const [cities, setCities] = useState(readCities);
-  // weather[id] = { data, loading, error }
   const [weather, setWeather] = useState({});
   const citiesRef = useRef(cities);
 
@@ -48,10 +47,8 @@ export function useCities() {
     }
   };
 
-  // При завантаженні сторінки оновлюємо погоду для всіх збережених міст
   useEffect(() => {
     citiesRef.current.forEach(loadWeather);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addCity = async name => {

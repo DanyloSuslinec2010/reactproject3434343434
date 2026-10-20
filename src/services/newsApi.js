@@ -1,5 +1,3 @@
-// Новости берем с Hacker News (Algolia), как в примере с axios.
-// Если запрос упал, показываем запасной список.
 const URL = 'https://hn.algolia.com/api/v1/search';
 
 export async function getNews() {

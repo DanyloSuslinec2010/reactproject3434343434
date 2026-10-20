@@ -13,7 +13,6 @@ export default function Gallery() {
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
 
-  // Сколько "шагов" у слайдера. Если экран стал шире, индекс не должен выйти за край.
   const lastIndex = galleryImages.length - visible;
   const current = Math.min(index, lastIndex);
 
@@ -28,7 +27,6 @@ export default function Gallery() {
     setTouchStart(null);
   };
 
-  // Ширина одного слайда и сдвиг ленты считаем через calc
   const slideWidth = `calc((100% - ${GAP * (visible - 1)}px) / ${visible})`;
   const shift = `calc(${current} * (${slideWidth} + ${GAP}px) * -1)`;
 

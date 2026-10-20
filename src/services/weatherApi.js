@@ -1,4 +1,3 @@
-// Все запросы к Open-Meteo (ключ не нужен).
 const GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast';
 
@@ -10,7 +9,6 @@ async function request(url) {
   return response.json();
 }
 
-// Ищем город по названию, берем первый результат
 export async function findCity(name) {
   const params = new URLSearchParams({
     name: name.trim(),
@@ -33,7 +31,6 @@ export async function findCity(name) {
   };
 }
 
-// Текущая погода + мин/макс и восход/закат на сегодня
 export async function getCurrentWeather({ lat, lon }) {
   const params = new URLSearchParams({
     latitude: lat,
@@ -52,7 +49,7 @@ export async function getCurrentWeather({ lat, lon }) {
     temp: Math.round(c.temperature_2m),
     feelsLike: Math.round(c.apparent_temperature),
     humidity: c.relative_humidity_2m,
-    pressure: Math.round(c.surface_pressure * 0.75006), // гПа -> мм рт. ст.
+    pressure: Math.round(c.surface_pressure * 0.75006),
     wind: Math.round(c.wind_speed_10m),
     code: c.weather_code,
     max: Math.round(data.daily.temperature_2m_max[0]),
@@ -63,7 +60,6 @@ export async function getCurrentWeather({ lat, lon }) {
   };
 }
 
-// Почасовой прогноз на сегодня (24 точки)
 export async function getHourlyForecast({ lat, lon }) {
   const params = new URLSearchParams({
     latitude: lat,
@@ -80,7 +76,6 @@ export async function getHourlyForecast({ lat, lon }) {
   }));
 }
 
-// Прогноз на 7 дней
 export async function getWeekForecast({ lat, lon }) {
   const params = new URLSearchParams({
     latitude: lat,

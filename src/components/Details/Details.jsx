@@ -14,7 +14,6 @@ export default function Details({ city, current, onClose }) {
   const [week, setWeek] = useState(null);
   const [weekLoading, setWeekLoading] = useState(false);
 
-  // Погодинний прогноз на сьогодні тягнемо при відкритті, і ще раз, якщо змінилось місто
   useEffect(() => {
     let ignore = false;
     setHourly(null);

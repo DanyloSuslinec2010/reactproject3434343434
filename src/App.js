@@ -13,7 +13,6 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { findCity, getCurrentWeather } from './services/weatherApi';
 
 export default function App() {
-  // Пользователь и список городов живут в localStorage
   const [user, setUser] = useLocalStorage('weather-user', null);
   const [cities, setCities] = useLocalStorage('weather-cities', []);
 =======
@@ -715,7 +714,6 @@ function App() {
 }
 >>>>>>> Stashed changes
 
-  // Погода по id города: { data, loading, error }
   const [weather, setWeather] = useState({});
   const [selectedId, setSelectedId] = useState(null);
   const detailsRef = useRef(null);
@@ -740,11 +738,8 @@ function App() {
     }
   }, []);
 
-  // При загрузке страницы обновляем погоду для всех сохраненных городов
   useEffect(() => {
     cities.forEach(city => loadWeather(city));
-    // нужно только один раз при старте
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = async name => {
@@ -785,7 +780,6 @@ function App() {
 
   const handleSelect = id => {
     setSelectedId(id);
-    // Ждем, пока блок отрисуется, и прокручиваем к нему
     setTimeout(() => {
       detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);

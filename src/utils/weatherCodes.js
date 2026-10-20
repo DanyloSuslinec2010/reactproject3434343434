@@ -10,7 +10,6 @@ import {
   WiThunderstorm,
 } from 'react-icons/wi';
 
-// Коды погоды WMO -> подпись и иконка
 export function getWeatherInfo(code) {
   if (code === 0) return { label: 'Ясно', Icon: WiDaySunny };
   if (code <= 2) return { label: 'Мінлива хмарність', Icon: WiDayCloudy };

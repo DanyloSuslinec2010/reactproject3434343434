@@ -33,7 +33,6 @@ const List = styled.ul`
   }
 `;
 
-// Мобилка и планшет: строка. Десктоп: колонка.
 const Item = styled.li`
   display: grid;
   grid-template-columns: 90px 40px 1fr auto;

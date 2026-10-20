@@ -1,4 +1,3 @@
-// Open-Meteo: безкоштовний API, ключ не потрібен
 const GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 
@@ -10,7 +9,6 @@ async function getJson(url) {
   return response.json();
 }
 
-// Пошук міста по назві
 export async function findCity(name) {
   const data = await getJson(
     `${GEO_URL}?name=${encodeURIComponent(name)}&count=1&language=uk`,
@@ -30,7 +28,6 @@ export async function findCity(name) {
   };
 }
 
-// Поточна погода + мін/макс за сьогодні
 export async function fetchCurrent({ lat, lon }) {
   const data = await getJson(
     `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +
@@ -52,7 +49,6 @@ export async function fetchCurrent({ lat, lon }) {
   };
 }
 
-// Погодинний прогноз на сьогодні
 export async function fetchHourly({ lat, lon }) {
   const data = await getJson(
     `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +
@@ -65,7 +61,6 @@ export async function fetchHourly({ lat, lon }) {
   };
 }
 
-// Прогноз на 7 днів
 export async function fetchWeek({ lat, lon }) {
   const data = await getJson(
     `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +

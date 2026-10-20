@@ -2,7 +2,6 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Modal.module.css';
 
-// Класовий компонент: слухаємо Escape в componentDidMount, прибираємо в componentWillUnmount
 class Modal extends Component {
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeyDown);

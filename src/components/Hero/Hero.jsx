@@ -4,7 +4,6 @@ import { FiSearch } from 'react-icons/fi';
 import styles from './Hero.module.css';
 
 export default function Hero({ onSearch }) {
-  // Дата береться під час завантаження сторінки, тому завжди актуальна
   const [today] = useState(() => new Date());
   const [query, setQuery] = useState('');
 

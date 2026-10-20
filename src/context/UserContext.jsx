@@ -17,7 +17,6 @@ const readUser = () => {
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(readUser);
 
-  // Пароль не зберігаємо, лише ім'я та пошту
   const register = ({ name, email }) => {
     const data = { name, email };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

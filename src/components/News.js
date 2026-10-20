@@ -11,7 +11,6 @@ export default function News() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // При первом рендере грузим новости. Если не вышло, берем запасные.
   useEffect(() => {
     let ignore = false;
 

@@ -6,7 +6,6 @@ export default function CityCard({ city, state, isActive, onSelect, onRefresh, o
   const { data, loading, error } = state || {};
   const info = data ? getWeatherInfo(data.code) : null;
 
-  // Кнопки внутри карточки не должны открывать детали
   const stop = handler => e => {
     e.stopPropagation();
     handler(city.id);

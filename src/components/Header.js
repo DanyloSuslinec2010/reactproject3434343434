@@ -102,7 +102,6 @@ const Logo = styled.a`
   color: ${p => p.theme.colors.primary};
 `;
 
-// На мобилке меню выпадает под шапкой, с планшета лежит в ряд
 const Nav = styled.nav`
   position: absolute;
   top: 64px;

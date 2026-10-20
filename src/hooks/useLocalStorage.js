@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-// Как useState, только значение лежит еще и в localStorage
 export function useLocalStorage(key, initialValue) {
   const [value, setValue] = useState(() => {
     try {
@@ -15,7 +14,6 @@ export function useLocalStorage(key, initialValue) {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      // localStorage может быть недоступен, тогда просто работаем без него
     }
   }, [key, value]);
 

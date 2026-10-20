@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import styles from './Gallery.module.css';
 
-// Зображення природи (заміни на свої, якщо потрібно)
 const images = [
   'https://picsum.photos/seed/forest/800/600',
   'https://picsum.photos/seed/mountain/800/600',
@@ -12,7 +11,6 @@ const images = [
   'https://picsum.photos/seed/sunset/800/600',
 ];
 
-// Скільки слайдів видно: 1 / 2 / 3 залежно від ширини екрана
 const getPerView = () => {
   if (window.innerWidth >= 1200) return 3;
   if (window.innerWidth >= 768) return 2;

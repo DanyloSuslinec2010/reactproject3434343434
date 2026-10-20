@@ -13,7 +13,6 @@ const schema = Yup.object({
 });
 
 export default function AuthModal({ onClose, onSubmit }) {
-  // Закрытие по Escape и блокировка прокрутки страницы
   useEffect(() => {
     const onKeyDown = e => {
       if (e.code === 'Escape') onClose();
@@ -43,7 +42,6 @@ export default function AuthModal({ onClose, onSubmit }) {
           initialValues={{ name: '', email: '', password: '' }}
           validationSchema={schema}
           onSubmit={values => {
-            // Пароль в localStorage не кладем, храним только имя и email
             onSubmit({ name: values.name.trim(), email: values.email.trim() });
           }}
         >

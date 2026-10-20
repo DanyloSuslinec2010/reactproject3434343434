@@ -20,7 +20,6 @@ export default function Details({ city, current, onClose }) {
   const [weekLoading, setWeekLoading] = useState(false);
   const [showWeek, setShowWeek] = useState(false);
 
-  // Меняется город или обновилась погода - грузим почасовой прогноз заново
   const updatedAt = current ? current.updatedAt : null;
   useEffect(() => {
     let ignore = false;
@@ -45,7 +44,6 @@ export default function Details({ city, current, onClose }) {
   }, [city, updatedAt]);
 
   const handleWeek = async () => {
-    // Второй клик прячет прогноз
     if (showWeek) {
       setShowWeek(false);
       return;

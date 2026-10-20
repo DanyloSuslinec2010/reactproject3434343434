@@ -7,7 +7,6 @@ import Container from './Container';
 import { formatFullDate, formatTime } from '../utils/date';
 
 export default function Hero({ onSearch }) {
-  // Дата берется при загрузке и дальше обновляется раз в минуту
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
