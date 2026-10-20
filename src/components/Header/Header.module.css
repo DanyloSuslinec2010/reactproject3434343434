@@ -1,0 +1,69 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  box-shadow: 0 2px 12px rgba(27, 36, 51, 0.06);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 60px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.nav {
+  display: none;
+}
+
+.btn,
+.userName {
+  padding: 8px 16px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.btn {
+  color: #fff;
+  background: var(--accent);
+  border: none;
+}
+
+.btn:hover {
+  background: var(--accent-dark);
+}
+
+.userName {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--accent);
+  background: none;
+  border: 2px solid var(--accent);
+}
+
+@media (min-width: 768px) {
+  .inner {
+    min-height: 72px;
+  }
+
+  .nav {
+    display: flex;
+    gap: 28px;
+  }
+
+  .nav a:hover {
+    color: var(--accent);
+  }
+}

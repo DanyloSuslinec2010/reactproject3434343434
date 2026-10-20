@@ -1,0 +1,172 @@
+.details {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.city {
+  font-size: 22px;
+}
+
+.label {
+  color: var(--muted);
+}
+
+.closeBtn {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 6px 14px;
+  color: var(--muted);
+  background: none;
+  border: 1px solid #d5dbe6;
+  border-radius: 8px;
+}
+
+/* Шкала температури */
+.scale {
+  margin-bottom: 24px;
+}
+
+.scaleBar {
+  position: relative;
+  height: 10px;
+  margin: 28px 20px 8px;
+  background: linear-gradient(90deg, #60a5fa, #facc15, #f97316);
+  border-radius: 5px;
+}
+
+.scaleMarker {
+  position: absolute;
+  top: -30px;
+  padding: 2px 8px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--text);
+  border-radius: 8px;
+  transform: translateX(-50%);
+  transition: left 0.4s;
+}
+
+.scaleLabels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Додаткові дані */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 12px;
+}
+
+.factTitle {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.factValue {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.weekBtn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.weekBtn:disabled {
+  opacity: 0.6;
+}
+
+/* Тиждень */
+.week {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.weekItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--bg);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.weekDay {
+  font-size: 14px;
+  text-transform: capitalize;
+  color: var(--muted);
+}
+
+@media (min-width: 768px) {
+  .details {
+    padding: 28px;
+  }
+
+  .head {
+    grid-template-columns: 1fr auto auto;
+  }
+
+  .closeBtn {
+    grid-column: auto;
+  }
+
+  .city {
+    font-size: 28px;
+  }
+
+  .facts {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .week {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .details {
+    padding: 36px;
+  }
+
+  .week {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
