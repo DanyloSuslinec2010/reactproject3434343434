@@ -3,6 +3,7 @@ import { ThemeProvider } from 'styled-components';
 import App from './App';
 import { theme } from './theme';
 
+<<<<<<< Updated upstream
 beforeEach(() => {
   window.localStorage.clear();
 });
@@ -57,4 +58,11 @@ test('validates the required registration fields', async () => {
   expect(screen.getByText('Введіть email')).toBeInTheDocument();
   expect(screen.getByText('Введіть пароль')).toBeInTheDocument();
   expect(JSON.parse(window.localStorage.getItem('weather-user'))).toBeNull();
+=======
+test('renders the weather dashboard', () => {
+  render(<App />);
+  expect(screen.getByRole('heading', { name: /feel the rhythm of the weather/i })).toBeInTheDocument();
+  expect(screen.getByRole('searchbox', { name: /search for a city/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /stories under the sky/i })).toBeInTheDocument();
+>>>>>>> Stashed changes
 });

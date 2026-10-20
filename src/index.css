@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 :root {
   --bg: #f3f6fb;
   --surface: #ffffff;
@@ -83,4 +84,20 @@ a {
     font-size: 32px;
     margin-bottom: 28px;
   }
+=======
+html {
+  background: #0a1020;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+>>>>>>> Stashed changes
 }
