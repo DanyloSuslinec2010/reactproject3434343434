@@ -27,12 +27,10 @@ import {
   FiPlus,
   FiRefreshCw,
   FiSearch,
-  FiSquare,
   FiSun,
   FiSunrise,
   FiSunset,
   FiThermometer,
-  FiTrash2,
   FiUser,
   FiWind,
   FiX,
@@ -60,22 +58,28 @@ const DEFAULT_CITIES = [
 
 const NEWS = [
   {
-    category: 'CLIMATE',
-    title: 'The small changes making cities cooler',
-    date: 'Oct 18, 2026',
-    image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=85',
+    category: 'Pet stories',
+    title: 'Rescue pups pose as ghosts in festive photo shoot',
+    date: 'Nov 03, 2026',
+    image: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=85',
   },
   {
-    category: 'NATURE',
-    title: 'A closer look at this season’s changing colors',
-    date: 'Oct 16, 2026',
-    image: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=900&q=85',
+    category: 'Pet stories',
+    title: 'Cat interrupts morning coffee on sunny Washington morning',
+    date: 'Nov 05, 2026',
+    image: 'https://images.unsplash.com/photo-1511044568932-338cba0ad803?auto=format&fit=crop&w=900&q=85',
   },
   {
-    category: 'TRAVEL',
-    title: 'Finding a little sunshine on a cloudy day',
-    date: 'Oct 12, 2026',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85',
+    category: 'Pet stories',
+    title: 'New study finds dogs pay more attention to women',
+    date: 'Nov 06, 2026',
+    image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    category: 'Pet stories',
+    title: 'Petting dogs gives health benefit, even if they are not yours',
+    date: 'Nov 08, 2026',
+    image: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=85',
   },
 ];
 
