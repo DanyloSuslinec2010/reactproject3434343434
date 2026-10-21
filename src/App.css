@@ -764,9 +764,18 @@ a {
 }
 
 @media (max-width: 640px) {
-  .city-grid,
+  .city-grid {
+    grid-template-columns: 1fr;
+  }
+
   .weather-stats {
     grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .weather-stat {
+    min-height: 150px;
+    padding: 14px 16px 12px;
   }
 }
 
