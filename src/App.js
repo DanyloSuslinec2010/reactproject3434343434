@@ -1,24 +1,8 @@
-<<<<<<< Updated upstream
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import CityList from './components/CityList';
-import Details from './components/Details';
-import News from './components/News';
-import Gallery from './components/Gallery';
-import Footer from './components/Footer';
-import { useLocalStorage } from './hooks/useLocalStorage';
-import { findCity, getCurrentWeather } from './services/weatherApi';
-
-export default function App() {
-  const [user, setUser] = useLocalStorage('weather-user', null);
-  const [cities, setCities] = useLocalStorage('weather-cities', []);
-=======
 import { useEffect, useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import { Line } from 'react-chartjs-2';
+import brandLogo from './logo-1.png';
+import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -274,7 +258,7 @@ function RegisterModal({ onClose, onRegister }) {
   );
 }
 
-function App() {
+export default function App() {
   const [cities, setCities] = useState(() => readCities().map((place) => ({
     place,
     weather: null,
@@ -491,8 +475,7 @@ function App() {
     <div className="app-shell">
       <header className="site-header">
         <a className="brand" href="#home" aria-label="Weatherly home">
-          <span className="brand__mark"><FiSun /></span>
-          <span>weatherly<span className="brand__dot">.</span></span>
+          <span className="brand__mark"><img src={brandLogo} alt="" /></span>
         </a>
         <button
           className="icon-button mobile-menu-toggle"
@@ -702,119 +685,37 @@ function App() {
       </main>
 
       <footer className="site-footer">
-        <a className="brand brand--footer" href="#home"><span className="brand__mark"><FiSun /></span><span>weatherly<span className="brand__dot">.</span></span></a>
-        <p>A little closer to the sky, every day.</p>
-        <span className="footer-credit">Made for your everyday forecast <FiSun /></span>
+        <div className="footer-inner">
+          <a className="footer-logo" href="#home" aria-label="Weatherly home">
+            <img src={brandLogo} alt="" />
+          </a>
+          <div className="footer-address">
+            <h2>Address</h2>
+            <address>
+              Svobody str. 35<br />
+              Kyiv<br />
+              Ukraine
+            </address>
+          </div>
+          <div className="footer-contact">
+            <h2>Contact us</h2>
+            <div className="footer-socials">
+              <a className="footer-social footer-social--instagram" href="https://instagram.com" aria-label="Instagram" target="_blank" rel="noreferrer noopener">
+                <FaInstagram />
+              </a>
+              <a className="footer-social footer-social--facebook" href="https://facebook.com" aria-label="Facebook" target="_blank" rel="noreferrer noopener">
+                <FaFacebookF />
+              </a>
+              <a className="footer-social footer-social--whatsapp" href="https://whatsapp.com" aria-label="WhatsApp" target="_blank" rel="noreferrer noopener">
+                <FaWhatsapp />
+              </a>
+            </div>
+          </div>
+        </div>
       </footer>
 
       {isRegisterOpen && <RegisterModal onClose={() => setIsRegisterOpen(false)} onRegister={registerUser} />}
       <ToastContainer position="bottom-right" autoClose={3000} theme="dark" />
     </div>
-  );
-}
->>>>>>> Stashed changes
-
-  const [weather, setWeather] = useState({});
-  const [selectedId, setSelectedId] = useState(null);
-  const detailsRef = useRef(null);
-
-  const loadWeather = useCallback(async city => {
-    setWeather(prev => ({
-      ...prev,
-      [city.id]: { ...prev[city.id], loading: true, error: null },
-    }));
-
-    try {
-      const data = await getCurrentWeather(city);
-      setWeather(prev => ({ ...prev, [city.id]: { data, loading: false, error: null } }));
-      return true;
-    } catch (error) {
-      setWeather(prev => ({
-        ...prev,
-        [city.id]: { ...prev[city.id], loading: false, error: error.message },
-      }));
-      toast.error(`${city.name}: ${error.message}`);
-      return false;
-    }
-  }, []);
-
-  useEffect(() => {
-    cities.forEach(city => loadWeather(city));
-  }, []);
-
-  const handleSearch = async name => {
-    try {
-      const city = await findCity(name);
-
-      if (cities.some(item => item.id === city.id)) {
-        toast.info(`${city.name} уже є у списку`);
-        return false;
-      }
-
-      setCities(prev => [...prev, city]);
-      await loadWeather(city);
-      toast.success(`${city.name} додано`);
-      return true;
-    } catch (error) {
-      toast.error(error.message);
-      return false;
-    }
-  };
-
-  const handleRemove = id => {
-    setCities(prev => prev.filter(city => city.id !== id));
-    setWeather(prev => {
-      const copy = { ...prev };
-      delete copy[id];
-      return copy;
-    });
-    if (selectedId === id) setSelectedId(null);
-  };
-
-  const handleRefresh = async id => {
-    const city = cities.find(item => item.id === id);
-    if (!city) return;
-    const ok = await loadWeather(city);
-    if (ok) toast.success(`Погоду в місті ${city.name} оновлено`);
-  };
-
-  const handleSelect = id => {
-    setSelectedId(id);
-    setTimeout(() => {
-      detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  };
-
-  const selectedCity = cities.find(city => city.id === selectedId);
-  const selectedWeather = selectedCity ? weather[selectedCity.id]?.data : null;
-
-  return (
-    <>
-      <Header user={user} onRegister={setUser} onLogout={() => setUser(null)} />
-      <main>
-        <Hero onSearch={handleSearch} />
-        <CityList
-          cities={cities}
-          weather={weather}
-          selectedId={selectedId}
-          onSelect={handleSelect}
-          onRefresh={handleRefresh}
-          onRemove={handleRemove}
-        />
-        <div ref={detailsRef}>
-          {selectedCity && selectedWeather && (
-            <Details
-              city={selectedCity}
-              current={selectedWeather}
-              onClose={() => setSelectedId(null)}
-            />
-          )}
-        </div>
-        <News />
-        <Gallery />
-      </main>
-      <Footer />
-      <ToastContainer position="top-right" autoClose={3000} />
-    </>
   );
 }

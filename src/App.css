@@ -79,14 +79,15 @@ a {
 
 .brand__mark {
   align-items: center;
-  background: linear-gradient(135deg, #778fff, #9a8fff);
-  border-radius: 12px;
-  color: white;
   display: inline-flex;
-  font-size: 19px;
-  height: 36px;
-  justify-content: center;
-  width: 36px;
+  flex: 0 0 auto;
+}
+
+.brand__mark img {
+  height: auto;
+  display: block;
+  object-fit: contain;
+  width: 82px;
 }
 
 .brand__dot {
@@ -1126,38 +1127,85 @@ a {
 .site-footer {
   align-items: center;
   border-top: 1px solid rgba(190, 202, 232, 0.09);
-  color: #8f9bb3;
+  color: #111;
   display: flex;
-  justify-content: space-between;
-  min-height: 95px;
-  padding: 20px max(7.3vw, calc((100vw - 1280px) / 2));
+  min-height: 168px;
+  padding: 24px 20px;
 }
 
-.brand--footer {
-  font-size: 16px;
+.footer-inner {
+  align-items: start;
+  display: grid;
+  gap: 34px;
+  grid-template-columns: 140px 152px 1fr;
+  margin: 0 auto;
+  max-width: 1060px;
+  width: 100%;
 }
 
-.brand--footer .brand__mark {
-  border-radius: 9px;
-  font-size: 15px;
-  height: 30px;
-  width: 30px;
+.footer-logo {
+  display: block;
+  width: 90px;
 }
 
-.site-footer > p,
-.footer-credit {
-  font-size: 10px;
+.footer-logo img {
+  display: block;
+  height: auto;
+  width: 100%;
 }
 
-.footer-credit {
-  align-items: center;
-  display: inline-flex;
+.footer-address {
+  display: grid;
   gap: 7px;
 }
 
-.footer-credit svg {
-  color: #e4c880;
-  font-size: 14px;
+.footer-address h2,
+.footer-contact h2 {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.footer-address address {
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1.2;
+}
+
+.footer-contact {
+  display: grid;
+  gap: 10px;
+}
+
+.footer-socials {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+}
+
+.footer-social {
+  align-items: center;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  font-size: 19px;
+  height: 38px;
+  justify-content: center;
+  text-decoration: none;
+  width: 38px;
+}
+
+.footer-social--instagram {
+  background: linear-gradient(35deg, #ffb629 5%, #f0187a 55%, #8c35c9 100%);
+}
+
+.footer-social--facebook {
+  background: #3b5998;
+}
+
+.footer-social--whatsapp {
+  background: #4ed34f;
 }
 
 .modal-backdrop {
@@ -1659,22 +1707,26 @@ a {
   }
 
   .site-footer {
-    align-items: flex-start;
-    flex-wrap: wrap;
+    min-height: 168px;
+    padding: 24px 20px;
+  }
+
+  .footer-inner {
+    gap: 20px;
+    grid-template-columns: 90px minmax(0, 1fr);
+  }
+
+  .footer-contact {
+    grid-column: 2;
+  }
+
+  .footer-socials {
     gap: 12px;
-    min-height: 113px;
-    padding: 21px 20px;
   }
 
-  .site-footer > p {
-    margin: 8px 0 0;
-    order: 3;
-    width: 100%;
-  }
-
-  .footer-credit {
-    font-size: 8px;
-    margin: 6px 0 0 auto;
+  .footer-social {
+    height: 34px;
+    width: 34px;
   }
 
   .register-modal {
@@ -1750,8 +1802,7 @@ body {
 }
 
 .brand__mark {
-  background: #f5a451;
-  color: #fff;
+  background: none;
 }
 
 .brand__dot {
@@ -1787,15 +1838,19 @@ body {
 .hero-section {
   align-items: center;
   background:
+    url('../Rectangle 2.png') center / cover,
     linear-gradient(90deg, rgba(20, 18, 16, 0.52), rgba(20, 18, 16, 0.24), rgba(20, 18, 16, 0.47)),
     linear-gradient(0deg, rgba(19, 14, 10, 0.23), rgba(19, 14, 10, 0.05)),
     url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=2200&q=90') center 48% / cover;
   border-bottom: 0;
   display: flex;
+  height: 595px;
+  margin: 0 auto;
+  max-width: 1440px;
   justify-content: center;
-  min-height: 365px;
   padding: 49px 30px 66px;
   text-align: center;
+  width: 100%;
 }
 
 .hero-section__glow,
@@ -2133,25 +2188,7 @@ body {
 .site-footer {
   background: #f5ad68;
   border: 0;
-  color: #57371e;
-}
-
-.brand--footer,
-.site-footer .brand {
-  color: #392719;
-}
-
-.brand--footer .brand__mark {
-  background: rgba(255, 255, 255, 0.35);
-  color: #6e421e;
-}
-
-.brand--footer .brand__dot {
-  color: #fff;
-}
-
-.footer-credit svg {
-  color: #7a4c25;
+  color: #111;
 }
 
 .register-modal {
@@ -2203,6 +2240,7 @@ body {
 
 @media (max-width: 900px) {
   .hero-section {
+    height: auto;
     min-height: 340px;
   }
 
