@@ -21,11 +21,13 @@ import {
   FiCloudRain,
   FiCloudSnow,
   FiDroplet,
+  FiHeart,
   FiMapPin,
   FiMenu,
   FiPlus,
   FiRefreshCw,
   FiSearch,
+  FiSquare,
   FiSun,
   FiSunrise,
   FiSunset,
@@ -159,35 +161,50 @@ function getHourlyForecast(weather) {
 
 function CityCard({ city, onSelect, onRefresh, onRemove }) {
   const weather = city.weather;
+  const temp = weather ? Math.round(weather.current.temperature_2m) : '--';
 
   return (
     <article className={`city-card${city.loading ? ' is-loading' : ''}`}>
+      <div className="city-card__header">
+        <div className="city-card__meta">
+          <span className="city-card__city">{city.place.name}</span>
+          <span className="city-card__country">{city.place.country}</span>
+        </div>
+        <span className="city-card__time">14:00</span>
+      </div>
+
+      <div className="city-card__switches">
+        <button type="button" className="city-card__toggle city-card__toggle--active">
+          Hourly forecast
+        </button>
+        <button type="button" className="city-card__toggle">
+          Weekly forecast
+        </button>
+      </div>
+
       <button className="city-card__main" type="button" onClick={onSelect}>
-        <span className="city-card__location">
-          <FiMapPin aria-hidden="true" />
-          {city.place.name}, {city.place.country}
-        </span>
         <span className="city-card__weather">
           {weather ? (
             <>
-              <span className="city-card__temperature">{Math.round(weather.current.temperature_2m)}°</span>
               {weatherIcon(weather.current.weather_code, 'city-card__icon')}
+              <span className="city-card__temperature">{temp}°</span>
             </>
           ) : (
-            <span className="city-card__temperature city-card__temperature--empty">--°</span>
+            <>
+              <FiSun className="city-card__icon city-card__icon--muted" />
+              <span className="city-card__temperature city-card__temperature--empty">--°</span>
+            </>
           )}
         </span>
-        <span className="city-card__condition">
-          {weather ? weatherDescription(weather.current.weather_code) : city.error || 'Loading forecast'}
-        </span>
-        {weather && (
-          <span className="city-card__range">
-            H: {Math.round(weather.daily.temperature_2m_max[0])}° <span aria-hidden="true">·</span> L:{' '}
-            {Math.round(weather.daily.temperature_2m_min[0])}°
-          </span>
-        )}
       </button>
-      <div className="city-card__actions">
+
+      <div className="city-card__footer">
+        <button className="city-card__fav" type="button" aria-label={`Save ${city.place.name}`}>
+          <FiHeart />
+        </button>
+        <button className="city-card__cta" type="button" onClick={onSelect}>
+          See more
+        </button>
         <button
           className="icon-button city-card__action"
           type="button"
@@ -196,14 +213,6 @@ function CityCard({ city, onSelect, onRefresh, onRemove }) {
           disabled={city.loading}
         >
           <FiRefreshCw className={city.loading ? 'spin' : ''} />
-        </button>
-        <button
-          className="icon-button city-card__action"
-          type="button"
-          aria-label={`Remove ${city.place.name}`}
-          onClick={onRemove}
-        >
-          <FiTrash2 />
         </button>
       </div>
     </article>
