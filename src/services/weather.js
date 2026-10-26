@@ -45,11 +45,13 @@ export async function getForecast(place) {
       'precipitation',
       'weather_code',
       'wind_speed_10m',
+      'pressure_msl',
+      'visibility',
     ].join(','),
     hourly: 'temperature_2m,precipitation_probability',
     daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset',
     timezone: 'auto',
-    forecast_days: '1',
+    forecast_days: '2',
   });
   const response = await fetch(`${FORECAST_URL}?${params.toString()}`);
   return readResponse(response);
