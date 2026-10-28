@@ -139,6 +139,29 @@ test('saves a registered user profile and greets them in the header', async () =
   });
 });
 
+test('lets a user sign out and register again', async () => {
+  window.localStorage.setItem('weather-user', JSON.stringify({
+    name: 'Alex Morgan',
+    email: 'alex@example.com',
+  }));
+  render(<App />);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+
+  expect(screen.queryByText('Hi, Alex Morgan')).not.toBeInTheDocument();
+  expect(window.localStorage.getItem('weather-user')).toBeNull();
+  fireEvent.click(screen.getAllByRole('button', { name: 'Sign up' })[0]);
+  fireEvent.change(screen.getByLabelText('Your name'), { target: { value: 'Taylor Reed' } });
+  fireEvent.change(screen.getByLabelText('Email address'), { target: { value: 'taylor@example.com' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+
+  await waitFor(() => expect(screen.getByText('Hi, Taylor Reed')).toBeInTheDocument());
+  expect(JSON.parse(window.localStorage.getItem('weather-user'))).toEqual({
+    name: 'Taylor Reed',
+    email: 'taylor@example.com',
+  });
+});
+
 test('searches for and adds a city with its current forecast', async () => {
   render(<App />);
 

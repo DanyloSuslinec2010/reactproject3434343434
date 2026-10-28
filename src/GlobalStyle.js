@@ -12,7 +12,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
     min-width: 320px;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     line-height: 1.5;
     color: ${p => p.theme.colors.text};

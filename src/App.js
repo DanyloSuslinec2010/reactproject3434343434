@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFormik } from 'formik';
 import { Line } from 'react-chartjs-2';
 import brandLogo from './logo-1.png';
@@ -204,7 +204,7 @@ function getCardDate(weather) {
   };
 }
 
-function CityCard({ city, onSelect, onRefresh, onRemove, onShowHourly, onShowWeekly, activeForecast }) {
+function CityCard({ city, onSelect, onCta, onRefresh, onRemove, onShowHourly, onShowWeekly, activeForecast }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const weather = city.weather;
   const temp = weather ? Math.round(weather.current.temperature_2m) : '--';
@@ -279,7 +279,7 @@ function CityCard({ city, onSelect, onRefresh, onRemove, onShowHourly, onShowWee
         >
           <FiHeart fill={isFavorite ? 'currentColor' : 'none'} />
         </button>
-        <button className="city-card__cta" type="button" onClick={onSelect}>
+        <button className="city-card__cta" type="button" onClick={onCta}>
           See more
         </button>
         <button
@@ -344,6 +344,7 @@ function RegisterModal({ onClose, onRegister }) {
 }
 
 export default function App() {
+  const detailPanelRef = useRef(null);
   const [cities, setCities] = useState(() => readCities().map((place) => ({
     place,
     weather: null,
@@ -513,6 +514,16 @@ export default function App() {
     }
   }
 
+  function logOutUser() {
+    try {
+      window.localStorage.removeItem('weather-user');
+      setUser(null);
+    } catch (error) {
+      console.error('Could not sign out of your profile.', error);
+      toast.error('You could not be signed out. Please try again.');
+    }
+  }
+
   const hourly = selectedWeather ? getHourlyForecast(selectedWeather) : [];
   const hourlyTemperatures = hourly.map(({ temperature }) => Math.round(temperature));
   const chartData = {
@@ -606,6 +617,13 @@ export default function App() {
             <span className="user-greeting">
               <span className="user-greeting__avatar">{user.name.charAt(0).toUpperCase()}</span>
               <span className="user-greeting__name">Hi, {user.name}</span>
+              <button
+                className="button button--outline user-greeting__logout"
+                type="button"
+                onClick={logOutUser}
+              >
+                Log out
+              </button>
             </span>
           ) : (
             <>
@@ -675,6 +693,10 @@ export default function App() {
                   key={city.place.id}
                   city={city}
                   onSelect={() => selectCity(city.place.id)}
+                  onCta={() => {
+                    selectCity(city.place.id);
+                    detailPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
                   onRefresh={() => refreshCity(city.place)}
                   onRemove={() => removeCity(city.place)}
                   onShowHourly={() => {
@@ -700,7 +722,7 @@ export default function App() {
 
           {selectedCity && (
             <>
-              <section className="detail-panel" aria-label={`${selectedCity.place.name} weather details`}>
+              <section ref={detailPanelRef} className="detail-panel" aria-label={`${selectedCity.place.name} weather details`}>
               <div className="weather-stats">
                 <article className="weather-stat weather-stat--feels">
                   <span className="weather-stat__label">Feels like</span>
