@@ -83,29 +83,6 @@ const NEWS = [
   },
 ];
 
-const GALLERY = [
-  {
-    image: 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85',
-    alt: 'Ocean waves washing over a quiet beach',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1000&q=85',
-    alt: 'Turquoise alpine lake surrounded by mountains',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1200&q=85',
-    alt: 'Golden sunlight over a mountain meadow',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1000&q=85',
-    alt: 'Mountain landscape in the evening light',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1000&q=85',
-    alt: 'Still lake beneath a colorful sunset',
-  },
-];
-
 function readStoredValue(key, fallback) {
   try {
     const value = window.localStorage.getItem(key);
@@ -360,6 +337,10 @@ export default function App() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(() => readStoredValue('weather-user', null));
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryLoading, setGalleryLoading] = useState(true);
+  const [galleryError, setGalleryError] = useState('');
+  const [galleryRetry, setGalleryRetry] = useState(0);
   const [showWeek, setShowWeek] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -381,6 +362,45 @@ export default function App() {
     const intervalId = window.setInterval(() => setCurrentDate(new Date()), 60_000);
     return () => window.clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadGallery() {
+      setGalleryLoading(true);
+      setGalleryError('');
+
+      try {
+        const response = await fetch(`${process.env.PUBLIC_URL}/gallery.json`, {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error(`Gallery request failed with status ${response.status}.`);
+        }
+
+        const items = await response.json();
+        if (!Array.isArray(items) || !items.every((item) => (
+          item
+          && typeof item.image === 'string'
+          && typeof item.alt === 'string'
+        ))) {
+          throw new Error('Gallery response has an invalid format.');
+        }
+
+        setGalleryItems(items);
+        setGalleryIndex(0);
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+        console.error('Could not load the gallery.', error);
+        setGalleryError('The gallery could not be loaded.');
+      } finally {
+        if (!controller.signal.aborted) setGalleryLoading(false);
+      }
+    }
+
+    loadGallery();
+    return () => controller.abort();
+  }, [galleryRetry]);
 
   useEffect(() => {
     readCities().forEach((place) => {
@@ -837,26 +857,39 @@ export default function App() {
           <div className="gallery-heading">
             <h2>Beautiful nature</h2>
           </div>
-          <div className="gallery-slider">
-            <div className="gallery-slider__track">
-              {GALLERY.map((item, index) => {
-                const position = (index - galleryIndex + 2 + GALLERY.length) % GALLERY.length;
-
-                return (
-                  <button
-                    className={`gallery-slide gallery-slide--position-${position}`}
-                    type="button"
-                    key={item.image}
-                    aria-label={`Show ${item.alt} in the center`}
-                    aria-pressed={position === 2}
-                    onClick={() => setGalleryIndex(index)}
-                  >
-                    <img src={item.image} alt={item.alt} />
-                  </button>
-                );
-              })}
+          {galleryLoading ? (
+            <p role="status">Loading gallery…</p>
+          ) : galleryError ? (
+            <div role="alert">
+              <p>{galleryError}</p>
+              <button className="button button--outline" type="button" onClick={() => setGalleryRetry((retry) => retry + 1)}>
+                Try again
+              </button>
             </div>
-          </div>
+          ) : galleryItems.length > 0 ? (
+            <div className="gallery-slider">
+              <div className="gallery-slider__track">
+                {galleryItems.map((item, index) => {
+                  const position = (index - galleryIndex + 2 + galleryItems.length) % galleryItems.length;
+
+                  return (
+                    <button
+                      className={`gallery-slide gallery-slide--position-${position}`}
+                      type="button"
+                      key={item.image}
+                      aria-label={`Show ${item.alt} in the center`}
+                      aria-pressed={position === 2}
+                      onClick={() => setGalleryIndex(index)}
+                    >
+                      <img src={item.image} alt={item.alt} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <p role="status">No gallery images are available.</p>
+          )}
         </section>
       </main>
 

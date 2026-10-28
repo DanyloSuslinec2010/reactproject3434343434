@@ -1,0 +1,22 @@
+[
+  {
+    "image": "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85",
+    "alt": "Ocean waves washing over a quiet beach"
+  },
+  {
+    "image": "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1000&q=85",
+    "alt": "Turquoise alpine lake surrounded by mountains"
+  },
+  {
+    "image": "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1200&q=85",
+    "alt": "Golden sunlight over a mountain meadow"
+  },
+  {
+    "image": "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1000&q=85",
+    "alt": "Mountain landscape in the evening light"
+  },
+  {
+    "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1000&q=85",
+    "alt": "Still lake beneath a colorful sunset"
+  }
+]
