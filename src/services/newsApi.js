@@ -1,12 +1,12 @@
 const URL = 'https://hn.algolia.com/api/v1/search';
 
-export async function getNews() {
+export async function getNews({ signal } = {}) {
   const params = new URLSearchParams({
     query: 'weather',
     tags: 'story',
-    hitsPerPage: '6',
+    hitsPerPage: '20',
   });
-  const response = await fetch(`${URL}?${params}`);
+  const response = await fetch(`${URL}?${params}`, { signal });
   if (!response.ok) {
     throw new Error('Не вдалося завантажити новини');
   }
@@ -14,12 +14,22 @@ export async function getNews() {
 
   return data.hits
     .filter(hit => hit.title)
-    .map(hit => ({
-      id: hit.objectID,
-      title: hit.title,
-      author: hit.author,
-      points: hit.points,
-      date: hit.created_at,
-      url: hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`,
-    }));
+    .slice(0, 4)
+    .map(hit => {
+      let source = '';
+      if (hit.url) {
+        try {
+          source = new URL(hit.url).hostname.replace(/^www\./, '');
+        } catch (error) {
+          console.warn(`Could not determine the news source for ${hit.objectID}.`, error);
+        }
+      }
+
+      return {
+        id: hit.objectID,
+        title: hit.title,
+        source: source || null,
+        date: hit.created_at,
+      };
+    });
 }
