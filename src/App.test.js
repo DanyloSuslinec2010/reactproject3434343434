@@ -176,6 +176,30 @@ test('refreshes news automatically every 15 minutes', async () => {
   }
 });
 
+test('refreshes news when the browser tab regains focus', async () => {
+  mockGetNews
+    .mockResolvedValueOnce([{
+      id: 'news-before-focus',
+      title: 'Earlier weather story',
+      date: '2026-11-01T10:00:00Z',
+    }])
+    .mockResolvedValueOnce([{
+      id: 'news-after-focus',
+      title: 'Fresh weather story',
+      date: '2026-11-01T11:00:00Z',
+    }]);
+
+  render(<App />);
+  expect(await screen.findByText('Earlier weather story')).toBeInTheDocument();
+
+  act(() => {
+    window.dispatchEvent(new Event('focus'));
+  });
+
+  expect(await screen.findByText('Fresh weather story')).toBeInTheDocument();
+  expect(mockGetNews).toHaveBeenCalledTimes(2);
+});
+
 test('updates the standalone weather section when another city is selected', async () => {
   mockGetForecast.mockImplementation((place) => Promise.resolve({
     ...mockWeather,

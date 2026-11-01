@@ -1,4 +1,4 @@
-const URL = 'https://hn.algolia.com/api/v1/search';
+const URL = 'https://hn.algolia.com/api/v1/search_by_date';
 
 export async function getNews({ signal } = {}) {
   const params = new URLSearchParams({
@@ -6,11 +6,15 @@ export async function getNews({ signal } = {}) {
     tags: 'story',
     hitsPerPage: '20',
   });
-  const response = await fetch(`${URL}?${params}`, { signal });
+  const response = await fetch(`${URL}?${params}`, { signal, cache: 'no-store' });
   if (!response.ok) {
     throw new Error('Не вдалося завантажити новини');
   }
   const data = await response.json();
+
+  if (!Array.isArray(data.hits)) {
+    throw new Error('The news response has an invalid format.');
+  }
 
   return data.hits
     .filter(hit => hit.title)

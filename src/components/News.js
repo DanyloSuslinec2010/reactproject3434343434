@@ -1,115 +1,119 @@
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { TailSpin } from 'react-loader-spinner';
-import Container from './Container';
-import { Section, SectionTitle } from './Section';
+import PropTypes from 'prop-types';
 import { getNews } from '../services/newsApi';
 import { fallbackNews } from '../data/fallbackNews';
 import { formatNewsDate } from '../utils/date';
 
+const REFRESH_INTERVAL = 15 * 60 * 1000;
+const NEWS_COUNT = 4;
+
+function NewsCard({ story }) {
+  const imageUrl = `https://picsum.photos/seed/${encodeURIComponent(story.id)}/900/600`;
+
+  return (
+    <article className="news-card">
+      <div
+        className="news-card__image"
+        style={{ backgroundImage: `url("${imageUrl}")` }}
+        role="img"
+        aria-label={story.title}
+      />
+      <div className="news-card__content">
+        <time dateTime={story.date}>{formatNewsDate(story.date)}</time>
+        <h3>{story.title}</h3>
+        {story.source && (
+          <span className="news-card__source">Source: {story.source}</span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+NewsCard.propTypes = {
+  story: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    source: PropTypes.string,
+    date: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+function NewsList({ stories }) {
+  return (
+    <div className="news-grid">
+      {stories.slice(0, NEWS_COUNT).map((story) => (
+        <NewsCard key={story.id} story={story} />
+      ))}
+    </div>
+  );
+}
+
+NewsList.propTypes = {
+  stories: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+  })).isRequired,
+};
+
 export default function News() {
-  const [news, setNews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [stories, setStories] = useState(fallbackNews);
 
   useEffect(() => {
-    let ignore = false;
+    const controller = new AbortController();
+    let isLoading = false;
+    let isActive = true;
+    let timeoutId;
 
-    getNews()
-      .then(data => {
-        if (!ignore) setNews(data.length > 0 ? data : fallbackNews);
-      })
-      .catch(() => {
-        if (!ignore) setNews(fallbackNews);
-      })
-      .finally(() => {
-        if (!ignore) setLoading(false);
-      });
+    async function refreshNews() {
+      if (isLoading || !isActive) {
+        return;
+      }
+
+      isLoading = true;
+      try {
+        const news = await getNews({ signal: controller.signal });
+        if (isActive) {
+          setStories([...news, ...fallbackNews].slice(0, NEWS_COUNT));
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError' && isActive) {
+          console.error('Could not refresh the news.', error);
+        }
+      } finally {
+        isLoading = false;
+        if (isActive) {
+          timeoutId = window.setTimeout(refreshNews, REFRESH_INTERVAL);
+        }
+      }
+    }
+
+    function refreshWhenVisible() {
+      if (document.visibilityState === 'visible') {
+        refreshNews();
+      }
+    }
+
+    refreshNews();
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    window.addEventListener('focus', refreshWhenVisible);
 
     return () => {
-      ignore = true;
+      isActive = false;
+      window.clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+      window.removeEventListener('focus', refreshWhenVisible);
+      controller.abort();
     };
   }, []);
 
   return (
-    <Section id="news">
-      <Container>
-        <SectionTitle>Новини</SectionTitle>
-
-        {loading ? (
-          <Loader>
-            <TailSpin height={48} width={48} color="#2f80ed" ariaLabel="Завантаження" />
-          </Loader>
-        ) : (
-          <List>
-            {news.map(item => (
-              <li key={item.id}>
-                <Card href={item.url} target="_blank" rel="noreferrer noopener">
-                  <Date>{formatNewsDate(item.date)}</Date>
-                  <Title>{item.title}</Title>
-                  <Author>
-                    {item.author}
-                    {item.points !== null && ` · ${item.points} балів`}
-                  </Author>
-                </Card>
-              </li>
-            ))}
-          </List>
-        )}
-      </Container>
-    </Section>
+    <section className="news-section section-wrap" id="news">
+      <div className="section-heading">
+        <h2>Stories under the sky</h2>
+        <p className="news-refresh-note">News refreshes automatically every 15 minutes.</p>
+      </div>
+      <NewsList stories={stories} />
+    </section>
   );
 }
-
-const Loader = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 32px 0;
-`;
-
-const List = styled.ul`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-
-  ${p => p.theme.media.tablet} {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-
-  ${p => p.theme.media.desktop} {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-`;
-
-const Card = styled.a`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  height: 100%;
-  padding: 20px;
-  border-radius: 16px;
-  background: ${p => p.theme.colors.card};
-  box-shadow: 0 4px 16px rgba(30, 60, 100, 0.08);
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: translateY(-3px);
-  }
-`;
-
-const Date = styled.p`
-  font-size: 13px;
-  color: ${p => p.theme.colors.muted};
-`;
-
-const Title = styled.h3`
-  font-size: 18px;
-  line-height: 1.3;
-`;
-
-const Author = styled.p`
-  margin-top: auto;
-  font-size: 14px;
-  color: ${p => p.theme.colors.primary};
-`;

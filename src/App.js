@@ -1,72 +1,38 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useFormik } from 'formik';
-import { Line } from 'react-chartjs-2';
 import brandLogo from './logo-1.png';
 import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  Filler,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Tooltip,
-} from 'chart.js';
 import {
   FiCloud,
   FiCloudDrizzle,
   FiCloudRain,
   FiCloudSnow,
-  FiActivity,
-  FiEye,
   FiHeart,
   FiMapPin,
   FiMenu,
   FiRefreshCw,
   FiSearch,
   FiSun,
-  FiThermometer,
   FiTrash2,
   FiUser,
-  FiWind,
   FiX,
   FiZap,
 } from 'react-icons/fi';
-import {
-  WiCloudy,
-  WiDayCloudy,
-  WiDayRain,
-  WiDaySnow,
-  WiDaySunny,
-  WiFog,
-  WiRain,
-  WiShowers,
-  WiSleet,
-  WiThunderstorm,
-} from 'react-icons/wi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { getForecast, getWeeklyForecast, searchCity } from './services/weather';
-import { getNews } from './services/newsApi';
-import { fallbackNews } from './data/fallbackNews';
-
-ChartJS.register(
-  CategoryScale,
-  Filler,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Tooltip,
-);
+import { createPasswordCredential, verifyPassword } from './services/auth';
+import RegisterModal from './components/RegisterForm/RegisterModal';
+import News from './components/News';
+import WeatherDetails from './components/Forecast/WeatherDetails';
+import HourlyForecast from './components/Forecast/HourlyForecast';
+import WeeklyForecast from './components/Forecast/WeeklyForecast';
 
 const DEFAULT_CITIES = [
   { id: 'kyiv-ukraine', name: 'Kyiv', country: 'Ukraine', latitude: 50.45, longitude: 30.52 },
   { id: 'london-united-kingdom', name: 'London', country: 'United Kingdom', latitude: 51.51, longitude: -0.13 },
   { id: 'tokyo-japan', name: 'Tokyo', country: 'Japan', latitude: 35.68, longitude: 139.69 },
 ];
-
-const NEWS_REFRESH_INTERVAL = 15 * 60 * 1000;
 
 function readStoredValue(key, fallback) {
   try {
@@ -76,50 +42,6 @@ function readStoredValue(key, fallback) {
     console.error(`Could not read ${key} from local storage.`, error);
     return fallback;
   }
-}
-
-function bytesToHex(bytes) {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
-function hexToBytes(hex) {
-  return new Uint8Array(hex.match(/.{2}/g).map((byte) => Number.parseInt(byte, 16)));
-}
-
-async function derivePasswordHash(password, salt) {
-  const key = await window.crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(password),
-    'PBKDF2',
-    false,
-    ['deriveBits'],
-  );
-  const derivedBits = await window.crypto.subtle.deriveBits({
-    name: 'PBKDF2',
-    salt,
-    iterations: 120000,
-    hash: 'SHA-256',
-  }, key, 256);
-  return new Uint8Array(derivedBits);
-}
-
-async function createPasswordCredential(password) {
-  if (!window.crypto?.subtle) {
-    throw new Error('Secure password storage is unavailable in this browser.');
-  }
-  const salt = window.crypto.getRandomValues(new Uint8Array(16));
-  const hash = await derivePasswordHash(password, salt);
-  return { salt: bytesToHex(salt), hash: bytesToHex(hash) };
-}
-
-async function verifyPassword(password, credential) {
-  if (!window.crypto?.subtle) {
-    throw new Error('Secure password verification is unavailable in this browser.');
-  }
-  const hash = await derivePasswordHash(password, hexToBytes(credential.salt));
-  const expectedHash = hexToBytes(credential.hash);
-  return hash.length === expectedHash.length
-    && hash.every((byte, index) => byte === expectedHash[index]);
 }
 
 function weatherIcon(code, className = '') {
@@ -133,61 +55,9 @@ function weatherIcon(code, className = '') {
   return <FiCloudRain className={className} />;
 }
 
-function weeklyWeatherIcon(code, className = '') {
-  if (code === 0) return <WiDaySunny className={className} />;
-  if (code === 1 || code === 2) return <WiDayCloudy className={className} />;
-  if (code === 3) return <WiCloudy className={className} />;
-  if (code === 45 || code === 48) return <WiFog className={className} />;
-  if (code >= 51 && code <= 57) return <WiSleet className={className} />;
-  if (code === 61) return <WiDayRain className={className} />;
-  if (code === 63 || code === 65 || (code >= 80 && code <= 82)) {
-    return <WiShowers className={className} />;
-  }
-  if (code === 66 || code === 67) return <WiRain className={className} />;
-  if ((code >= 71 && code <= 77) || code === 85 || code === 86) {
-    return <WiDaySnow className={className} />;
-  }
-  if (code >= 95) return <WiThunderstorm className={className} />;
-  return <WiDayCloudy className={className} />;
-}
-
-function weeklyWeatherDescription(code) {
-  if (code === 0) return 'clear sky';
-  if (code === 1) return 'mainly clear';
-  if (code === 2) return 'few clouds';
-  if (code === 3) return 'overcast clouds';
-  if (code === 45 || code === 48) return 'fog';
-  if (code === 51 || code === 56) return 'light drizzle';
-  if (code === 53 || code === 55 || code === 57) return 'drizzle';
-  if (code === 61) return 'light rain';
-  if (code === 63 || code === 66) return 'moderate rain';
-  if (code === 65 || code === 67) return 'heavy rain';
-  if (code === 71 || code === 85) return 'light snow';
-  if (code === 73 || code === 77) return 'snow';
-  if (code === 75 || code === 86) return 'heavy snow';
-  if (code === 80) return 'light rain';
-  if (code === 81) return 'rain showers';
-  if (code === 82) return 'heavy showers';
-  if (code >= 95) return 'thunderstorm';
-  return 'cloudy';
-}
-
 function readCities() {
   const savedCities = readStoredValue('weather-cities', null);
   return Array.isArray(savedCities) ? savedCities : DEFAULT_CITIES;
-}
-
-function getHourlyForecast(weather) {
-  const { time, temperature_2m: temperatures, precipitation_probability: rain } = weather.hourly;
-  const currentTime = weather.current.time;
-  let startIndex = time.findIndex((hour) => hour >= currentTime);
-  if (startIndex < 0) startIndex = 0;
-
-  return time.slice(startIndex, startIndex + 24).map((hour, index) => ({
-    time: hour,
-    temperature: temperatures[startIndex + index],
-    rain: rain[startIndex + index] ?? 0,
-  }));
 }
 
 function getCardDate(weather) {
@@ -310,87 +180,6 @@ function CityCard({
   );
 }
 
-function RegisterModal({ onClose, onRegister, onLogin }) {
-  const [isLogin, setIsLogin] = useState(false);
-  const formik = useFormik({
-    initialValues: { name: '', email: '', password: '' },
-    onSubmit: (values) => {
-      const email = values.email.trim();
-      return isLogin
-        ? onLogin({ email, password: values.password })
-        : onRegister({ name: values.name.trim(), email, password: values.password });
-    },
-  });
-
-  function switchMode() {
-    setIsLogin((current) => !current);
-    formik.resetForm();
-  }
-
-  return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onClose();
-    }}>
-      <section className="register-modal" role="dialog" aria-modal="true" aria-labelledby="register-title">
-        <h2 id="register-title">{isLogin ? 'Log In' : 'Sign up'}</h2>
-        <form className="register-form" onSubmit={formik.handleSubmit}>
-          {!isLogin && (
-            <div className="register-form__field">
-              <label htmlFor="register-name">Username</label>
-              <input
-                id="register-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                placeholder="Username"
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                required
-              />
-            </div>
-          )}
-          <div className="register-form__field">
-            <label htmlFor="register-email">E-Mail</label>
-            <input
-              id="register-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="E-Mail"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              required
-            />
-          </div>
-          <div className="register-form__field">
-            <label htmlFor="register-password">Password</label>
-            <input
-              id="register-password"
-              name="password"
-              type="password"
-              autoComplete={isLogin ? 'current-password' : 'new-password'}
-              placeholder="Password"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              required
-              minLength={isLogin ? undefined : 6}
-            />
-          </div>
-          <button className="register-form__submit" type="submit" disabled={formik.isSubmitting}>
-            {isLogin ? 'Log In' : 'Sign up'}
-          </button>
-        </form>
-        <p className="register-modal__login">
-          {isLogin ? "Don't have an account? " : 'Already have an account? '}
-          <button className="register-modal__mode" type="button" onClick={switchMode}>
-            {isLogin ? 'Sign up' : 'Log In'}
-          </button>
-        </p>
-      </section>
-    </div>
-  );
-}
-
 export default function App() {
   const detailPanelRef = useRef(null);
   const [cities, setCities] = useState(() => readCities().map((place) => ({
@@ -407,7 +196,6 @@ export default function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(() => readStoredValue('weather-user', null));
-  const [newsItems, setNewsItems] = useState(fallbackNews);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [galleryItems, setGalleryItems] = useState([]);
   const [galleryLoading, setGalleryLoading] = useState(true);
@@ -433,35 +221,6 @@ export default function App() {
   useEffect(() => {
     const intervalId = window.setInterval(() => setCurrentDate(new Date()), 60_000);
     return () => window.clearInterval(intervalId);
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    let isLoading = false;
-
-    async function refreshNews() {
-      if (isLoading) return;
-      isLoading = true;
-      try {
-        const items = await getNews({ signal: controller.signal });
-        if (items.length > 0) {
-          setNewsItems([...items, ...fallbackNews].slice(0, 4));
-        }
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.error('Could not refresh the news.', error);
-        }
-      } finally {
-        isLoading = false;
-      }
-    }
-
-    refreshNews();
-    const intervalId = window.setInterval(refreshNews, NEWS_REFRESH_INTERVAL);
-    return () => {
-      window.clearInterval(intervalId);
-      controller.abort();
-    };
   }, []);
 
   useEffect(() => {
@@ -560,6 +319,38 @@ export default function App() {
   function selectCity(cityId) {
     setSelectedCityId(cityId);
     setVisibleForecasts({ hourly: true, weekly: false });
+  }
+
+  function toggleHourlyForecast(city) {
+    if (selectedCityId === city.place.id) {
+      setVisibleForecasts((current) => ({
+        ...current,
+        hourly: !current.hourly,
+      }));
+      return;
+    }
+
+    setSelectedCityId(city.place.id);
+    setVisibleForecasts({ hourly: true, weekly: false });
+  }
+
+  function toggleWeeklyForecast(city) {
+    const isSelectedCity = selectedCityId === city.place.id;
+    const showForecast = !isSelectedCity || !visibleForecasts.weekly;
+
+    if (isSelectedCity) {
+      setVisibleForecasts((current) => ({
+        ...current,
+        weekly: !current.weekly,
+      }));
+    } else {
+      setSelectedCityId(city.place.id);
+      setVisibleForecasts({ hourly: false, weekly: true });
+    }
+
+    if (showForecast && !city.weeklyForecast && !city.weekLoading) {
+      loadWeeklyForecast(city.place);
+    }
   }
 
   async function refreshCity(place) {
@@ -679,74 +470,6 @@ export default function App() {
     }
   }
 
-  const hourly = selectedWeather ? getHourlyForecast(selectedWeather) : [];
-  const hourlyTemperatures = hourly.map(({ temperature }) => Math.round(temperature));
-  const chartData = {
-    labels: hourly.map(({ time }, index) => {
-      const previousDay = index > 0 && time.slice(0, 10) !== hourly[index - 1].time.slice(0, 10);
-      if (previousDay) {
-        return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })
-          .format(new Date(`${time.slice(0, 10)}T12:00:00`));
-      }
-      if (index === 0) return 'Now';
-      return new Intl.DateTimeFormat('en-US', { hour: 'numeric' })
-        .format(new Date(`2000-01-01T${time.slice(11)}:00`));
-    }),
-    datasets: [{
-      data: hourlyTemperatures,
-      borderColor: '#ff9c42',
-      backgroundColor: 'transparent',
-      fill: false,
-      tension: 0.18,
-      borderWidth: 2,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-    }],
-  };
-  const chartMin = Math.floor(Math.min(...hourlyTemperatures, 0) / 5) * 5;
-  const chartMax = Math.max(
-    chartMin + 5,
-    Math.ceil(Math.max(...hourlyTemperatures, 1) / 5) * 5,
-  );
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        displayColors: false,
-        callbacks: { label: (context) => `${context.parsed.y}°C` },
-      },
-    },
-    scales: {
-      x: {
-        position: 'top',
-        grid: { color: 'rgba(70, 70, 70, 0.2)', drawTicks: false },
-        border: { display: false },
-        ticks: {
-          color: '#222',
-          autoSkip: false,
-          maxRotation: 0,
-          minRotation: 0,
-          padding: 8,
-          font: { size: 9 },
-        },
-      },
-      y: {
-        min: chartMin,
-        max: chartMax,
-        grid: { color: 'rgba(70, 70, 70, 0.2)' },
-        border: { display: false },
-        ticks: {
-          stepSize: 5,
-          color: '#222',
-          callback: (value) => `${value}°C`,
-          font: { size: 10 },
-        },
-      },
-    },
-  };
-
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -854,27 +577,8 @@ export default function App() {
                   }}
                   onRefresh={() => refreshCity(city.place)}
                   onRemove={() => removeCity(city.place)}
-                  onShowHourly={() => {
-                    if (selectedCityId === city.place.id) {
-                      setVisibleForecasts((current) => ({ ...current, hourly: !current.hourly }));
-                    } else {
-                      setSelectedCityId(city.place.id);
-                      setVisibleForecasts({ hourly: true, weekly: false });
-                    }
-                  }}
-                  onShowWeekly={() => {
-                    const isSelectedCity = selectedCityId === city.place.id;
-                    const willShow = !isSelectedCity || !visibleForecasts.weekly;
-                    if (isSelectedCity) {
-                      setVisibleForecasts((current) => ({ ...current, weekly: !current.weekly }));
-                    } else {
-                      setSelectedCityId(city.place.id);
-                      setVisibleForecasts({ hourly: false, weekly: true });
-                    }
-                    if (willShow && !city.weeklyForecast && !city.weekLoading) {
-                      loadWeeklyForecast(city.place);
-                    }
-                  }}
+                  onShowHourly={() => toggleHourlyForecast(city)}
+                  onShowWeekly={() => toggleWeeklyForecast(city)}
                   activeForecasts={selectedCityId === city.place.id
                     ? visibleForecasts
                     : { hourly: false, weekly: false }}
@@ -893,139 +597,28 @@ export default function App() {
             <>
               {visibleForecasts.hourly && (
                 <>
-              <section
-                key={selectedCity.place.id}
-                ref={detailPanelRef}
-                className="detail-panel"
-                aria-label={`${selectedCity.place.name} weather details`}
-              >
-              <div className="weather-stats">
-                <article className="weather-stat weather-stat--feels">
-                  <span className="weather-stat__label">Temperature</span>
-                  <strong>{selectedWeather ? `${Math.round(selectedWeather.current.temperature_2m)}°C` : '--'}</strong>
-                  <span className="weather-stat__feels-like">
-                    Feels like {selectedWeather ? `${Math.round(selectedWeather.current.apparent_temperature)}°C` : '--'}
-                  </span>
-                  <FiThermometer aria-hidden="true" />
-                </article>
-                <article className="weather-stat weather-stat--range">
-                  <span className="weather-stat__label">Min °C</span>
-                  <strong>{selectedWeather ? `${Math.round(selectedWeather.daily.temperature_2m_min[0])}°C` : '--'}</strong>
-                  <span className="weather-stat__label">Max °C</span>
-                  <strong>{selectedWeather ? `${Math.round(selectedWeather.daily.temperature_2m_max[0])}°C` : '--'}</strong>
-                </article>
-                <article className="weather-stat weather-stat--humidity">
-                  <span className="weather-stat__label">Humidity</span>
-                  <strong>{selectedWeather ? `${selectedWeather.current.relative_humidity_2m}%` : '--'}</strong>
-                  <FiCloudRain aria-hidden="true" />
-                </article>
-                <article className="weather-stat weather-stat--pressure">
-                  <span className="weather-stat__label">Pressure</span>
-                  <strong>{selectedWeather ? `${Math.round(selectedWeather.current.pressure_msl)} hPa` : '--'}</strong>
-                  <FiActivity aria-hidden="true" />
-                </article>
-                <article className="weather-stat weather-stat--wind">
-                  <span className="weather-stat__label">Wind speed</span>
-                  <strong>{selectedWeather ? `${(selectedWeather.current.wind_speed_10m / 3.6).toFixed(2)} m/s` : '--'}</strong>
-                  <FiWind aria-hidden="true" />
-                </article>
-                <article className="weather-stat weather-stat--visibility">
-                  <span className="weather-stat__label">Visibility</span>
-                  <strong>
-                    {selectedWeather
-                      ? selectedWeather.current.visibility >= 24000
-                        ? '>24 km'
-                        : `${(selectedWeather.current.visibility / 1000).toFixed(1)} km`
-                      : '--'}
-                  </strong>
-                  <FiEye aria-hidden="true" />
-                </article>
-              </div>
-              </section>
-
-                <section className="forecast-card hourly-card" aria-labelledby="hourly-forecast-title">
-                  <div className="hourly-card__heading">
-                    <h4 id="hourly-forecast-title">Hourly forecast</h4>
+                  <div
+                    key={selectedCity.place.id}
+                    ref={detailPanelRef}
+                  >
+                    <WeatherDetails cityName={selectedCity.place.name} weather={selectedWeather} />
+                    <HourlyForecast weather={selectedWeather} />
                   </div>
-                  <div className="hourly-chart">
-                    {hourly.length > 0 ? (
-                      <Line data={chartData} options={chartOptions} aria-label="Hourly temperature forecast chart" />
-                    ) : (
-                      <div className="chart-placeholder">Hourly forecast is loading…</div>
-                    )}
-                  </div>
-                </section>
                 </>
               )}
 
               {visibleForecasts.weekly && (
-                <div className="forecast-grid">
-                  <section className="forecast-card week-card" aria-labelledby="weekly-forecast-title">
-                    <h4 id="weekly-forecast-title" className="week-card__title">7-day forecast</h4>
-                    {selectedCity.weeklyForecast ? (
-                      <div className="week-list">
-                        {selectedCity.weeklyForecast.time.map((date, index) => (
-                          <div className="week-row" key={date}>
-                            <span className="week-row__day">
-                              {new Intl.DateTimeFormat('en-US', {
-                                weekday: 'short',
-                                month: 'short',
-                                day: 'numeric',
-                                timeZone: 'UTC',
-                              }).format(new Date(`${date}T12:00:00Z`))}
-                            </span>
-                            {weeklyWeatherIcon(selectedCity.weeklyForecast.weather_code[index], 'week-row__icon')}
-                            <span className="week-row__range">
-                              {Math.round(selectedCity.weeklyForecast.temperature_2m_max[index])}/
-                              {Math.round(selectedCity.weeklyForecast.temperature_2m_min[index])}°C
-                            </span>
-                            <span className="week-row__condition">
-                              {weeklyWeatherDescription(selectedCity.weeklyForecast.weather_code[index])}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="forecast-loading">
-                        {selectedCity.weekLoading
-                          ? 'The 7-day forecast is loading…'
-                          : 'The 7-day forecast could not be loaded.'}
-                      </p>
-                    )}
-                  </section>
-                </div>
+                <WeeklyForecast
+                  forecast={selectedCity.weeklyForecast}
+                  isLoading={selectedCity.weekLoading}
+                  hasError={selectedCity.weekError}
+                />
               )}
             </>
           )}
         </section>
 
-        <section className="news-section section-wrap" id="news">
-          <div className="section-heading">
-            <h2>Stories under the sky</h2>
-            <p className="news-refresh-note">News refreshes automatically every 15 minutes.</p>
-          </div>
-          <div className="news-grid">
-            {newsItems.slice(0, 4).map((story) => (
-              <article className="news-card" key={story.id}>
-                <div
-                  className="news-card__image"
-                  style={{
-                    backgroundImage: `url("https://picsum.photos/seed/${encodeURIComponent(story.id)}/900/600")`,
-                  }}
-                  role="img"
-                  aria-label={story.title}
-                />
-                <div className="news-card__content">
-                  <time dateTime={story.date}>{new Date(story.date).toLocaleDateString()}</time>
-                  <h3>{story.title}</h3>
-                  {story.source && (
-                    <span className="news-card__source">Source: {story.source}</span>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+        <News />
 
         <section className="gallery-section section-wrap" id="gallery">
           <div className="gallery-heading">
